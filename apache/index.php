@@ -15,8 +15,8 @@ include_once('serverFunc/sessionHandler.php');
 
     <script src="https://kit.fontawesome.com/c4cafcfd34.js" crossorigin="anonymous"></script>
 
-    <link rel="stylesheet" href="index.css">
-    <script src="index.js"></script>
+    <link rel="stylesheet" href="src/index.css">
+    <script src="src/index.js"></script>
 
     <link rel="icon" href="assets/tictactoe.svg">
     <title>Крестики-нолики</title>

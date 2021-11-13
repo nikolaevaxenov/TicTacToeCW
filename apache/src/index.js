@@ -16,6 +16,11 @@ class Board {
       throw new Error("Cell index does not exist!");
     }
     if (!["X", "O"].includes(symbol)) {
+      console.log(
+        `Input char: '${symbol}', it need to be: 'X' or 'O'. ${
+          symbol == "X" || symbol == "O"
+        }`
+      );
       throw new Error("The symbol can only be x or o!");
     }
     if (this.state[position]) {
@@ -207,6 +212,8 @@ class TicTacToe {
         this.#player2side = this.#player1side == "X" ? "O" : "X";
       case "local":
         this.#modeDescribe = "Локальная игра";
+        this.#player1side = this.#side;
+        this.#player2side = this.#player1side == "X" ? "O" : "X";
       case "multi":
         this.#modeDescribe = "Игра по сети";
     }
@@ -222,7 +229,7 @@ class TicTacToe {
     return this.#mode;
   }
 
-  #createField() {
+  #createField(newField = true, result = "") {
     document.querySelector(".game").innerHTML =
       '<div class="row">' +
       '<div class="col">' +
@@ -234,29 +241,63 @@ class TicTacToe {
       "</div>" +
       '<div class="field">';
 
-    this.#field.forEach((e, i) => {
-      document.querySelector(
-        ".field"
-      ).innerHTML += `<div id="block_${i}" class="block" onclick="t.addMove(${i})"><h1>${e}</h1></div>`;
-    });
+    if (newField == true) {
+      this.#field.state.forEach((e, i) => {
+        document.querySelector(
+          ".field"
+        ).innerHTML += `<div id="block_${i}" class="block" onclick="t.addMove(${i})"><h1>${e}</h1></div>`;
+      });
+    } else {
+      this.#field.state.forEach((e, i) => {
+        document.querySelector(
+          ".field"
+        ).innerHTML += `<div id="block_${i}" class="block"><h1>${e}</h1></div>`;
+      });
+    }
 
-    document.querySelector(".game").innerHTML += "</div>";
+    document.querySelector(".game").innerHTML += `${result}</div>`;
   }
 
   #computerMove() {
-    p.getBestMove(this.#field);
+    p.getBestMove(this.#field.state);
+  }
+
+  #checkWin(statusObj, side) {
+    if (!statusObj) return;
+    const { winner, direction, row, column, diagonal } = statusObj;
+    var result = "";
+    if (winner == "draw") {
+      result = "<div><h2>Ничья!</h2></div>";
+    } else if (winner.includes(side)) {
+      result = `<div><h2>Игрок (${side}) победил!</h2></div>`;
+    }
+    this.#createField(false, result);
   }
 
   addMove(element) {
     if (this.#mode == "local") {
+      if (this.#field.isEmpty() && this.#player1side == "O") {
+        if (this.#field.insert(this.#player2side, element)) {
+          document.getElementById(`block_${element}`).firstChild.innerText =
+            this.#player2side;
+          this.#checkWin(this.#field.isTerminal(), this.#player2side);
+          this.#clock = true;
+        }
+      }
       if (this.#clock) {
-        document.getElementById(`block_${element}`).firstChild.innerText =
-          this.#player1side;
-        this.#clock = false;
+        if (this.#field.insert(this.#player1side, element)) {
+          document.getElementById(`block_${element}`).firstChild.innerText =
+            this.#player1side;
+          this.#checkWin(this.#field.isTerminal(), this.#player1side);
+          this.#clock = false;
+        }
       } else {
-        document.getElementById(`block_${element}`).firstChild.innerText =
-          this.#player2side;
-        this.#clock = true;
+        if (this.#field.insert(this.#player2side, element)) {
+          document.getElementById(`block_${element}`).firstChild.innerText =
+            this.#player2side;
+          this.#checkWin(this.#field.isTerminal(), this.#player2side);
+          this.#clock = true;
+        }
       }
     } else if (this.#mode == "single") {
       if (this.#clock) {
