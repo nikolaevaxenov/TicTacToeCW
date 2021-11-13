@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "secret"
+  dynamic_apache:
+    build: ./apache
+    volumes:
+      - ./apache:/var/apache
+      - ./assets:/var/apache/assets
+    ports:
+      - 8000:80
+    depends_on:
+      - db
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+    depends_on:
+      - db
