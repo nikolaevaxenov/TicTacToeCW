@@ -1,10 +1,54 @@
 <?php
+include_once("database/database.php");
+
+function showRegErrors()
+{
+  if (!empty($GLOBALS['errorsReg'])) {
+    if (count($GLOBALS['errorsReg']) > 0) {
+      echo "<div class='error'>";
+      foreach ($GLOBALS['errorsReg'] as $error) {
+        echo "<p class='text-dark'>{$error}</p>";
+      }
+      echo "</div>";
+    }
+  }
+}
+
+function showLogErrors()
+{
+  if (!empty($GLOBALS['errorsLog'])) {
+    if (count($GLOBALS['errorsLog']) > 0) {
+      echo "<div class='error'>";
+      foreach ($GLOBALS['errorsLog'] as $error) {
+        echo "<p class='text-dark'>{$error}</p>";
+      }
+      echo "</div>";
+    }
+  }
+}
+
+function isRegErrors()
+{
+  if (!empty($GLOBALS['errorsReg'])) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+function isLogErrors()
+{
+  if (!empty($GLOBALS['errorsLog'])) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 $login = "";
 $errorsReg = array();
 $errorsLog = array();
 
-include_once("database/database.php");
 $db = new Database();
 
 if (isset($_POST['regUser'])) {

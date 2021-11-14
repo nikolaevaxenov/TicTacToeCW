@@ -24,6 +24,7 @@ include_once('serverFunc/server.php');
 </head>
 
 <body>
+    <?php count($errorsLog) ?>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand ms-3" href="http://localhost:8000/">Крестики-нолики</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,19 +70,19 @@ include_once('serverFunc/server.php');
                 </div>
                 <div class="modal-body">
                     <form method="post" action="index.php" class="border p-3">
-                        <?php include('serverFunc/errorsLog.php'); ?>
+                        <?php showLogErrors(); ?>
                         <div class="">
                             <label for="login" class="form-label text-dark">Логин</label>
-                            <input type="text" class="form-control" id="login" name="loginLog" aria-describedby="loginHelp" />
+                            <input type="text" class="form-control" id="login" name="loginLog" aria-describedby="loginHelp" required />
                             <div id="loginHelp" class="form-text">Введите ваш логин</div>
                         </div>
                         <div class="">
                             <label for="passwordInput" class="form-label text-dark">Пароль</label>
-                            <input type="password" class="form-control" id="passwordInput" name="passwordLog" />
+                            <input type="password" class="form-control" id="passwordInput" name="passwordLog" required />
                             <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary mt-2" name="loginUser">Войти</button>
+                            <button type="submit" class="btn btn-primary mt-2" name="loginUser" id="logSubmit">Войти</button>
                         </div>
                     </form>
                 </div>
@@ -101,19 +102,19 @@ include_once('serverFunc/server.php');
                 </div>
                 <div class="modal-body">
                     <form method="post" action="index.php" class="border p-3">
-                        <?php include('serverFunc/errorsReg.php'); ?>
+                        <?php showRegErrors(); ?>
                         <div class="">
                             <label for="login" class="form-label text-dark">Логин</label>
-                            <input type="text" class="form-control" id="login" name="loginReg" aria-describedby="loginHelp" />
+                            <input type="text" class="form-control" id="login" name="loginReg" aria-describedby="loginHelp" required />
                             <div id="loginHelp" class="form-text">Введите ваш логин</div>
                         </div>
                         <div class="">
                             <label for="passwordInput" class="form-label text-dark">Пароль</label>
-                            <input type="password" class="form-control" id="passwordInput" name="passwordReg" />
+                            <input type="password" class="form-control" id="passwordInput" name="passwordReg" required />
                             <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn btn-primary mt-2" name="regUser">Зарегистрироваться</button>
+                            <button type="submit" class="btn btn-primary mt-2" name="regUser" id="regSubmit">Зарегистрироваться</button>
                         </div>
                     </form>
                 </div>
@@ -167,6 +168,21 @@ include_once('serverFunc/server.php');
             </div>
         </div>
     </div>
+    <script>
+        var logModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        var regModal = new bootstrap.Modal(document.getElementById('regModal'));
+        var logErrors = <?php echo isLogErrors(); ?>;
+        var regErrors = <?php echo isRegErrors(); ?>;
+
+        console.log(`Log errors: ${logErrors}, Reg errors: ${regErrors}`)
+
+        if (logErrors == 1) {
+            logModal.show();
+        }
+        if (regErrors == 1) {
+            regModal.show();
+        }
+    </script>
 </body>
 
 </html>
