@@ -210,15 +210,22 @@ class TicTacToe {
         this.#modeDescribe = "Однопользовательская игра";
         this.#player1side = this.#side;
         this.#player2side = this.#player1side == "X" ? "O" : "X";
+        break;
       case "local":
         this.#modeDescribe = "Локальная игра";
         this.#player1side = this.#side;
         this.#player2side = this.#player1side == "X" ? "O" : "X";
+        break;
       case "multi":
         this.#modeDescribe = "Игра по сети";
+        break;
     }
     document.querySelector(".game").innerHTML = "";
     this.#createField();
+    if (this.#field.isEmpty() && this.#player1side == "O") {
+      this.#addMoveComp();
+      return;
+    }
   }
 
   get getSide() {
@@ -258,20 +265,26 @@ class TicTacToe {
     document.querySelector(".game").innerHTML += `${result}</div>`;
   }
 
-  #computerMove() {
-    p.getBestMove(this.#field.state);
-  }
-
-  #checkWin(statusObj, side) {
+  #checkWin(statusObj, side, role = "Игрок") {
     if (!statusObj) return;
     const { winner, direction, row, column, diagonal } = statusObj;
     var result = "";
     if (winner == "draw") {
       result = "<div><h2>Ничья!</h2></div>";
     } else if (winner.includes(side)) {
-      result = `<div><h2>Игрок (${side}) победил!</h2></div>`;
+      result = `<div><h2>${role} (${side}) победил!</h2></div>`;
     }
     this.#createField(false, result);
+  }
+
+  #addMoveComp() {
+    var tLoc = this.#computer.getBestMove(this.#field);
+    document.getElementById(`block_${tLoc}`).firstChild.innerText =
+      this.#player2side;
+    if (this.#field.insert(this.#player2side, parseInt(tLoc))) {
+      this.#checkWin(this.#field.isTerminal(), this.#player2side, "Компьютер");
+    }
+    this.#clock = true;
   }
 
   addMove(element) {
@@ -300,10 +313,14 @@ class TicTacToe {
         }
       }
     } else if (this.#mode == "single") {
-      if (this.#clock) {
-        document.getElementById(`block_${element}`).firstChild.innerText =
-          this.#player1side;
-        this.#clock = false;
+      if (this.#clock == true) {
+        if (this.#field.insert(this.#player1side, element)) {
+          document.getElementById(`block_${element}`).firstChild.innerText =
+            this.#player1side;
+          this.#checkWin(this.#field.isTerminal(), this.#player1side);
+          this.#clock = false;
+          this.#addMoveComp();
+        }
       }
     }
   }
