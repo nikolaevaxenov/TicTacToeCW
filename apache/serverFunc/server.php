@@ -54,12 +54,17 @@ $db = new Database();
 if (isset($_POST['regUser'])) {
   $login = $db->real_escape_string($_POST['loginReg']);
   $password = $db->real_escape_string($_POST['passwordReg']);
-
   if (empty($login)) {
     array_push($errorsReg, "Требуется ввести имя учетной записи!");
   }
   if (empty($password)) {
     array_push($errorsReg, "Требуется ввести пароль учетной записи!");
+  }
+  if (!ctype_alnum($login)) {
+    array_push($errorsReg, "Имя учетной записи не должно содержать особых знаков!");
+  }
+  if (preg_match('/\s/', $password)) {
+    array_push($errorsReg, "Пароль не должен содержать пробел!");
   }
 
   $user = $db->checkDataUsers($login);
@@ -87,6 +92,12 @@ if (isset($_POST['loginUser'])) {
   }
   if (empty($password)) {
     array_push($errorsLog, "Требуется ввести пароль учетной записи!");
+  }
+  if (!ctype_alnum($login)) {
+    array_push($errorsLog, "Имя учетной записи не должно содержать особых знаков!");
+  }
+  if (preg_match('/\s/', $password)) {
+    array_push($errorsLog, "Пароль не должен содержать пробел!");
   }
 
   if (count($errorsLog) == 0) {
