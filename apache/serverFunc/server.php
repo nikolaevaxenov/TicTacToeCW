@@ -30,7 +30,6 @@ if (isset($_POST['regUser'])) {
     $db->setPasswordUser($login, $password);
     $_SESSION['login'] = $login;
     $_SESSION['success'] = "Вы успешно вошли!";
-    header("Location: shop.php");
   }
 }
 
@@ -50,7 +49,6 @@ if (isset($_POST['loginUser'])) {
     if (mysqli_num_rows($results) == 1) {
       $_SESSION['login'] = $login;
       $_SESSION['success'] = "Вы успешно вошли!";
-      header("Location: shop.php");
     } else {
       array_push($errorsLog, "Имя или пароль пользователя неверны!");
     }
@@ -60,5 +58,4 @@ if (isset($_POST['loginUser'])) {
 if (isset($_POST['logout'])) {
   session_destroy();
   unset($_SESSION['login']);
-  header('location:index.php');
 }

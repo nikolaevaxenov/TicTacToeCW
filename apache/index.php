@@ -1,5 +1,6 @@
 <?php
 include_once('serverFunc/sessionHandler.php');
+include_once('serverFunc/server.php');
 ?>
 
 <!DOCTYPE html>
@@ -40,21 +41,88 @@ include_once('serverFunc/sessionHandler.php');
             <ul class="nav navbar-nav ml-auto me-3">
                 <li class="nav-item">
                     <?php
-                    if (isset($_SESSION['login']) and $_SESSION['login'] != session_id()) {
+                    if (isset($_SESSION['login'])) {
                         echo "<a class='nav-link' href='http://localhost:8000/'><i class='fas fa-user me-1'></i>{$_SESSION['login']}</a>";
                     } else {
-                        echo "<a class='nav-link' href='http://localhost:8000/'><i class='fas fa-user-secret me-1'></i>Гость</a>";
+                        echo "<a class='nav-link' href='#'><i class='fas fa-user-secret me-1'></i>Гость</a>";
                     }
                     ?>
                 </li>
                 <?php
-                if (isset($_SESSION['login']) and $_SESSION['login'] != session_id()) {
-                    echo "<li class='nav-item'><form method='post' action='index.php'><button type='submit' class='btn btn-primary' name='logout'>Выйти</button></form></li>";
+                if (isset($_SESSION['login'])) {
+                    echo "<li class='nav-item'><form method='post' action='index.php'><button type='submit' class='btn btn-secondary' name='logout'>Выйти</button></form></li>";
+                } else {
+                    echo "<li class='nav-item'><a class='nav-link' data-bs-toggle='modal' data-bs-target='#loginModal' href='#'>Войти</a></li>";
+                    echo "<li class='nav-item'><a class='nav-link' data-bs-toggle='modal' data-bs-target='#regModal' href='#'>Зарегистрироваться</a></li>";
                 }
                 ?>
             </ul>
         </div>
     </nav>
+
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="logModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logModalLabel">Вход</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="index.php" class="border p-3">
+                        <?php include('serverFunc/errorsLog.php'); ?>
+                        <div class="">
+                            <label for="login" class="form-label text-dark">Логин</label>
+                            <input type="text" class="form-control" id="login" name="loginLog" aria-describedby="loginHelp" />
+                            <div id="loginHelp" class="form-text">Введите ваш логин</div>
+                        </div>
+                        <div class="">
+                            <label for="passwordInput" class="form-label text-dark">Пароль</label>
+                            <input type="password" class="form-control" id="passwordInput" name="passwordLog" />
+                            <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary mt-2" name="loginUser">Войти</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="regModal" tabindex="-1" aria-labelledby="regModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="regModalLabel">Регистрация</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="index.php" class="border p-3">
+                        <?php include('serverFunc/errorsReg.php'); ?>
+                        <div class="">
+                            <label for="login" class="form-label text-dark">Логин</label>
+                            <input type="text" class="form-control" id="login" name="loginReg" aria-describedby="loginHelp" />
+                            <div id="loginHelp" class="form-text">Введите ваш логин</div>
+                        </div>
+                        <div class="">
+                            <label for="passwordInput" class="form-label text-dark">Пароль</label>
+                            <input type="password" class="form-control" id="passwordInput" name="passwordReg" />
+                            <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary mt-2" name="regUser">Зарегистрироваться</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <h2 class="text-center m-1">Крестики-нолики</h2>
     <div class="container">
