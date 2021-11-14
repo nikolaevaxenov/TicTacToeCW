@@ -196,7 +196,7 @@ class TicTacToe {
   #side;
   #mode;
   #modeDescribe;
-  #field = new Board();
+  #field;
   #player1side;
   #player2side;
   #clock = true;
@@ -221,7 +221,7 @@ class TicTacToe {
         break;
     }
     document.querySelector(".game").innerHTML = "";
-    this.#createField();
+    this.createField();
     if (this.#field.isEmpty() && this.#player1side == "O") {
       this.#addMoveComp();
       return;
@@ -236,7 +236,7 @@ class TicTacToe {
     return this.#mode;
   }
 
-  #createField(newField = true, result = "") {
+  createField(newField = true, result = "") {
     document.querySelector(".game").innerHTML =
       '<div class="row">' +
       '<div class="col">' +
@@ -249,20 +249,26 @@ class TicTacToe {
       '<div class="field">';
 
     if (newField == true) {
+      this.#field = new Board();
+      this.#clock = true;
       this.#field.state.forEach((e, i) => {
         document.querySelector(
           ".field"
         ).innerHTML += `<div id="block_${i}" class="block" onclick="t.addMove(${i})"><h1>${e}</h1></div>`;
       });
+      document.querySelector(".field").innerHTML += `</div>`;
     } else {
       this.#field.state.forEach((e, i) => {
         document.querySelector(
           ".field"
         ).innerHTML += `<div id="block_${i}" class="block"><h1>${e}</h1></div>`;
       });
+      document.querySelector(".field").innerHTML += `</div>`;
+      document.querySelector(".game").innerHTML += `<div>${result}</div>`;
+      document.querySelector(
+        ".game"
+      ).innerHTML += `<div><button type="button" class="btn btn-success" onclick="t.createField()">Перезапустить</button></div>`;
     }
-
-    document.querySelector(".game").innerHTML += `${result}</div>`;
   }
 
   #checkWin(statusObj, side, role = "Игрок") {
@@ -274,7 +280,7 @@ class TicTacToe {
     } else if (winner.includes(side)) {
       result = `<div><h2>${role} (${side}) победил!</h2></div>`;
     }
-    this.#createField(false, result);
+    this.createField(false, result);
   }
 
   #addMoveComp() {
