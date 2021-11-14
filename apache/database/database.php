@@ -30,6 +30,14 @@ class Database
         mysqli_query($this->db, $query);
     }
 
+    function generateAPIKey($login)
+    {
+        $apiKey = implode('-', str_split(substr(strtolower(md5(microtime() . rand(1000, 9999))), 0, 30), 6));
+
+        $query = "UPDATE users SET apikey = '$apiKey' WHERE login = '$login'";
+        mysqli_query($this->db, $query);
+    }
+
     function getUserByLoginPassword($login, $password)
     {
         $password = md5($password);

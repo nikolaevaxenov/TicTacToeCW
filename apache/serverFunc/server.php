@@ -72,6 +72,7 @@ if (isset($_POST['regUser'])) {
 
   if (count($errorsReg) == 0) {
     $db->setPasswordUser($login, $password);
+    $db->generateAPIKey($login);
     $_SESSION['login'] = $login;
     $_SESSION['success'] = "Вы успешно вошли!";
   }
