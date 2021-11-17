@@ -49,6 +49,22 @@
             </div>
             <div class="col mt-3">
                 <p class="lead text-center">Топ 30 игроков</p>
+                <table class="table table-hover mx-3">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-center">Логин</th>
+                        <th scope="col" class="text-center">Счет</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($scoreboard as $score)
+                            <tr>
+                                <th scope="row" class="text-center">{{$score['login']}}</th>
+                                <td class="text-center">{{$score['score']}}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                  </table>
             </div>
         </div>
     </div>

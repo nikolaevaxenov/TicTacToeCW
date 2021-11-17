@@ -10,6 +10,7 @@ class IndexController extends Controller
 {
     function index()
     {
-        return view('index');
+        $scoreboard = User::select('login', 'score')->orderByDesc('score')->limit(30)->get();
+        return view('index')->with('scoreboard', $scoreboard);
     }
 }
