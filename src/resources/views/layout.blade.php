@@ -85,7 +85,7 @@
                             <input type="password" class="form-control" id="passwordInput" name="passwordReg" required />
                             <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
                         </div>
-                        <span class="text-danger">@error('passwordReg'){{ $message }}@enderror</span>
+                        <span class="text-danger">@error('passwordReg'){{ $message }} {{Session::flash('regStatus', 1)}}@enderror</span>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary mt-2" name="regUser" id="regSubmit">Зарегистрироваться</button>
                         </div>
@@ -145,10 +145,6 @@
 
         var logErrors = @if (Session::get('logStatus') == 1) 1 @else 0 @endif;
         var regErrors = @if (Session::get('regStatus') == 1) 1 @else 0 @endif;
-
-        console.log(`Log errors: ${logErrors}, Reg errors: ${regErrors}`)
-        console.log(`{{ Session::get('logStatus') }}  {{ Session::get('regStatus') }}`)
-        console.log(`{{ Session::get('login') }}  {{ Session::get('regStatus') }}`)
 
         if (logErrors == 1) {
             logModal.show();

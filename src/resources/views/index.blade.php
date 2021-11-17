@@ -13,7 +13,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <div class="game">
+                <div class="game center-block mt-3">
                     <p class="lead text-center">Выберите сторону</p>
                     <div class="row">
                         <div class="col text-center">
@@ -47,7 +47,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col mt-3">
                 <p class="lead text-center">Топ 30 игроков</p>
             </div>
         </div>

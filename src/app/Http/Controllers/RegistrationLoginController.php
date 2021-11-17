@@ -12,8 +12,8 @@ class RegistrationLoginController extends Controller
     function registration(Request $request)
     {
         $request->validate([
-            'loginReg' => 'required|unique:users,login',
-            'passwordReg' => 'required'
+            'loginReg' => 'required|alpha_num|unique:users,login',
+            'passwordReg' => 'required|regex:/^\S*$/u'
         ]);
 
         $user = new User;
