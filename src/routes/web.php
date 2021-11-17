@@ -21,4 +21,6 @@ Route::get('/', [IndexController::class, 'index'])->name('index');
 Route::post('/', [RegistrationLoginController::class, 'findAction'])->name('reglog');
 
 Route::get('/rules', [RulesController::class, 'rules'])->name('rules');
+
 Route::get('/account', [AccountController::class, 'account'])->name('account');
+Route::post('/account', [AccountController::class, 'showAPI'])->name('showAPI');
