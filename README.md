@@ -26,10 +26,10 @@
 6. Разработать слой клиентского представления веб-приложения.
 7. Создать презентацию по выполненной курсовой работе.
 
-##Запуск веб-приложения
-Веб-приложение использует фреймворк Lavavel, сервер Nginx, СУБД SQL Mariadb.
-В корневом каталоге введите: `docker-compose up -d --build site`
-Для ввода команд для composer, npm, artisan введите:
-* docker-compose run --rm composer {команда}
-* docker-compose run --rm npm {команда}
-* docker-compose run --rm artisan {команда}
+## Запуск веб-приложения
+Веб-приложение использует фреймворк Lavavel, сервер Nginx, СУБД SQL Mariadb.  
+В корневом каталоге введите: `docker-compose up -d --build site`  
+Для ввода команд для composer, npm, artisan введите:  
+* `docker-compose run --rm composer {команда}`
+* `docker-compose run --rm npm {команда}`
+* `docker-compose run --rm artisan {команда}`
