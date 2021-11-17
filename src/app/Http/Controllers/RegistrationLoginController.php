@@ -36,7 +36,7 @@ class RegistrationLoginController extends Controller
     {
         $request->validate([
             'loginLog' => 'required',
-            'passwordLog' => 'required|min:5'
+            'passwordLog' => 'required'
         ]);
 
         $userInfo = User::where('login', '=', $request->loginLog)->first();

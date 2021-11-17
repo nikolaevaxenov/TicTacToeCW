@@ -49,7 +49,7 @@
             </div>
             <div class="col mt-3">
                 <p class="lead text-center">Топ 30 игроков</p>
-                <table class="table table-hover mx-3">
+                <table class="table mx-3">
                     <thead>
                       <tr>
                         <th scope="col" class="text-center">Логин</th>
@@ -58,7 +58,10 @@
                     </thead>
                     <tbody>
                         @foreach ($scoreboard as $score)
-                            <tr>
+                            <tr @if ($score['login'] == session()->get('login'))
+                                class="table-active"
+                                @endif
+                            </tr>
                                 <th scope="row" class="text-center">{{$score['login']}}</th>
                                 <td class="text-center">{{$score['score']}}</td>
                             </tr>
