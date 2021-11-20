@@ -26,28 +26,28 @@
                 <tbody>
                     <tr>
                         <th scope="row" class="text-center">Количество очков</th>
-                        <td class="text-center">{{$data['score'][0]['score']}}</td>
+                        <td class="text-center">{{$score[0]['score']}}</td>
                     </tr>
                     <tr>
                         <th scope="row" class="text-center">Количество игр</th>
-                        <td class="text-center">{{$data['score'][0]['wins'] + $data['score'][0]['losses']}}</td>
+                        <td class="text-center">{{$score[0]['wins'] + $score[0]['losses']}}</td>
                     </tr>
                     <tr>
                         <th scope="row" class="text-center">Победы</th>
-                        <td class="text-center">{{$data['score'][0]['wins']}}</td>
+                        <td class="text-center">{{$score[0]['wins']}}</td>
                     </tr>
                     <tr>
                         <th scope="row" class="text-center">Поражения</th>
-                        <td class="text-center">{{$data['score'][0]['losses']}}</td>
+                        <td class="text-center">{{$score[0]['losses']}}</td>
                     </tr>
                     <tr>
                         <th scope="row" class="text-center">Отношение побед к поражениям</th>
                         <td class="text-center">
-                            @if ($data['score'][0]['wins'] != 0 && $data['score'][0]['losses'] != 0)
-                                {{$data['score'][0]['wins'] / $data['score'][0]['losses']}}
+                            @if ($score[0]['wins'] != 0 && $score[0]['losses'] != 0)
+                                {{round($score[0]['wins'] / $score[0]['losses'], 2)}}
                             @else
-                                @if ($data['score'][0]['wins'] != 0)
-                                    {{$data['score'][0]['wins']}}
+                                @if ($score[0]['wins'] != 0)
+                                    {{$score[0]['wins']}}
                                 @else
                                     0
                                 @endif
@@ -56,19 +56,6 @@
                     </tr>
                 </tbody>
               </table>
-        </div>
-        <div class="col">
-            <h2 class="text-center">API ключ</h2>
-            <form method='post' action='{{ route('showAPI') }}'>
-                @csrf
-                <div class="text-center">
-                    @if (empty($data['apikey']))
-                        <button type='submit' class='btn btn-secondary m-2' name='showapi' value='1'>Показать API ключ</button>
-                    @else
-                        <div class="text-center"><code id="apikey" class="m-2 text-center">{{$data['apikey'][0]['apikey']}}</code></div><button type="submit" class="btn btn-secondary m-2" name="showapi" value="0">Скрыть ключ</button>
-                    @endif
-                </div>
-            </form>
         </div>
     </div>
 </div>

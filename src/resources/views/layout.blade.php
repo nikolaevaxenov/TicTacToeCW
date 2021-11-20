@@ -86,6 +86,11 @@
                             <div id="passwordHelp" class="form-text">Введите ваш пароль</div>
                         </div>
                         <span class="text-danger">@error('passwordReg'){{ $message }} {{Session::flash('regStatus', 1)}}@enderror</span>
+                        <div class="">
+                            <label for="passwordInput2" class="form-label text-dark">Подтвердите пароль</label>
+                            <input type="password" class="form-control" id="passwordInput2" name="passwordReg_confirmation" required />
+                            <div id="passwordHelp2" class="form-text">Введите ваш пароль еще раз</div>
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary mt-2" name="regUser" id="regSubmit">Зарегистрироваться</button>
                         </div>

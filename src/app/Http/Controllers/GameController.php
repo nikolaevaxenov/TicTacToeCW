@@ -3,83 +3,93 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    function saveField(Request $request)
     {
-        //
-    }
+        if (session()->get('login')) {
+            $login = session()->get('login');
+        } else {
+            $login = session()->get('guestuuid');
+        }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+        if ($request->newGame == true) {
+            if ($request->exitGame == false && $request->fromOld == true && $request->draw == false) {
+                $tscore = User::select('score', 'losses', 'wins')->where('login', '=', $login)->first();
+                if ($request->winSide != $request->side) {
+                    if ($request->mode == "single") {
+                        User::where('login', '=', $login)->update(['score' => $tscore['score'] - 1]);
+                        User::where('login', '=', $login)->update(['losses' => $tscore['losses'] + 1]);
+                    }
+                } else {
+                    if ($request->mode == "single") {
+                        User::where('login', '=', $login)->update(['score' => $tscore['score'] + 3]);
+                        User::where('login', '=', $login)->update(['wins' => $tscore['wins'] + 1]);
+                    }
+                }
+                Game::where('player1', '=', $login)->orWhere('player2', '=', $login)->delete();
+                if ($request->side == 'X') {
+                    Game::insert([
+                        'player1' => $login,
+                        'player2' => null,
+                        'mode' => $request->mode
+                    ]);
+                } else {
+                    Game::insert([
+                        'player1' => null,
+                        'player2' => $login,
+                        'mode' => $request->mode
+                    ]);
+                }
+            } else if ($request->exitGame == true && $request->draw == false) {
+                if ($request->gameRunning == 1) {
+                    $tscore = User::select('score', 'losses')->where('login', '=', $login)->first();
+                    if ($request->mode == "single") {
+                        User::where('login', '=', $login)->update(['score' => $tscore['score'] - 1]);
+                        User::where('login', '=', $login)->update(['losses' => $tscore['losses'] + 1]);
+                    }
+                } else if ($request->gameRunning == 0) {
+                    $tscore = User::select('score', 'losses', 'wins')->where('login', '=', $login)->first();
+                    if ($request->winSide != $request->side) {
+                        if ($request->mode == "single") {
+                            User::where('login', '=', $login)->update(['score' => $tscore['score'] - 1]);
+                            User::where('login', '=', $login)->update(['losses' => $tscore['losses'] + 1]);
+                        }
+                    } else {
+                        if ($request->mode == "single") {
+                            User::where('login', '=', $login)->update(['score' => $tscore['score'] + 3]);
+                            User::where('login', '=', $login)->update(['wins' => $tscore['wins'] + 1]);
+                        }
+                    }
+                }
+                Game::where('player1', '=', $login)->orWhere('player2', '=', $login)->delete();
+            } else {
+                Game::where('player1', '=', $login)->orWhere('player2', '=', $login)->delete();
+                if ($request->side == 'X') {
+                    Game::insert([
+                        'player1' => $login,
+                        'player2' => null,
+                        'mode' => $request->mode
+                    ]);
+                } else {
+                    Game::insert([
+                        'player1' => null,
+                        'player2' => $login,
+                        'mode' => $request->mode
+                    ]);
+                }
+            }
+        } else {
+            if ($request->side == 'X') {
+                Game::where('player1', '=', $login)->update(['field' => $request->field]);
+            } else {
+                Game::where('player2', '=', $login)->update(['field' => $request->field]);
+            }
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Game  $game
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Game $game)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Game  $game
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Game $game)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Game  $game
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Game $game)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Game  $game
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Game $game)
-    {
-        //
+        return redirect()->route('index');
     }
 }

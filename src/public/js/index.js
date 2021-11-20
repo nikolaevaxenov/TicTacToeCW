@@ -3,6 +3,26 @@ class Board {
         this.state = state;
     }
 
+    getDBboard() {
+        var s = "";
+        for (let cell of this.state) {
+            s += cell !== "" ? cell : "1";
+        }
+
+        return s;
+    }
+
+    getTurn() {
+        var x = (this.getDBboard().match(/X/g) || []).length;
+        var o = (this.getDBboard().match(/O/g) || []).length;
+
+        if (x > o) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     isEmpty() {
         return this.state.every((cell) => !cell);
     }
@@ -207,18 +227,45 @@ class Player {
 }
 
 class TicTacToe {
+    #login;
+    #opponent;
+    #url;
     #side;
     #mode;
     #modeDescribe;
     #field;
+    #fieldDB;
     #player1side;
     #player2side;
+    #winSide = "";
+    #gameRunning = 1;
     #clock = true;
     #computer = new Player();
+    #scoreAdd = 0;
+    #draw = false;
+    #scorePrint;
 
-    constructor() {
-        this.#side = document.querySelector('input[name="side"]:checked').value;
-        this.#mode = document.querySelector('input[name="mode"]:checked').value;
+    constructor(fieldDB, login, url, side, mode, opponent = null) {
+        if (side == 0) {
+            this.#side = document.querySelector(
+                'input[name="side"]:checked'
+            ).value;
+        } else {
+            this.#side = side;
+        }
+
+        if (mode == 0) {
+            this.#mode = document.querySelector(
+                'input[name="mode"]:checked'
+            ).value;
+        } else {
+            this.#mode = mode;
+        }
+
+        this.#login = login;
+        this.#opponent = opponent;
+        this.#fieldDB = fieldDB;
+        this.#url = url;
         switch (this.#mode) {
             case "single":
                 this.#modeDescribe = "Однопользовательская игра";
@@ -230,15 +277,118 @@ class TicTacToe {
                 this.#player1side = this.#side;
                 this.#player2side = this.#player1side == "X" ? "O" : "X";
                 break;
-            case "multi":
-                this.#modeDescribe = "Игра по сети";
-                break;
         }
         document.querySelector(".game").innerHTML = "";
         this.createField();
-        if (this.#field.isEmpty() && this.#player1side == "O") {
+        if (
+            this.#field.isEmpty() &&
+            this.#player1side == "O" &&
+            this.#mode == "single"
+        ) {
             this.#addMoveComp();
             return;
+        }
+    }
+
+    #createDBField(newGame = false, exitGame = false, fromOld = false) {
+        if (newGame == true) {
+            if (exitGame == true) {
+                $.ajaxSetup({
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                            "content"
+                        ),
+                    },
+                });
+
+                axios
+                    .post("http://localhost:8000/game", {
+                        saveField: "1",
+                        side: this.#side,
+                        mode: this.#mode,
+                        winSide: this.#winSide,
+                        gameRunning: this.#gameRunning,
+                        newGame: true,
+                        exitGame: true,
+                        fromOld: false,
+                        draw: this.#draw,
+                    })
+                    .then((response) => {
+                        console.log("from handle submit", response);
+                    });
+            } else {
+                if (fromOld == false) {
+                    $.ajaxSetup({
+                        headers: {
+                            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                                "content"
+                            ),
+                        },
+                    });
+
+                    axios
+                        .post("http://localhost:8000/game", {
+                            saveField: "1",
+                            side: this.#side,
+                            mode: this.#mode,
+                            winSide: this.#winSide,
+                            gameRunning: this.#gameRunning,
+                            newGame: true,
+                            exitGame: false,
+                            fromOld: false,
+                            draw: this.#draw,
+                        })
+                        .then((response) => {
+                            console.log("sus", response);
+                        });
+                } else if (fromOld == true) {
+                    $.ajaxSetup({
+                        headers: {
+                            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                                "content"
+                            ),
+                        },
+                    });
+
+                    axios
+                        .post("http://localhost:8000/game", {
+                            saveField: "1",
+                            side: this.#side,
+                            mode: this.#mode,
+                            winSide: this.#winSide,
+                            gameRunning: this.#gameRunning,
+                            newGame: true,
+                            exitGame: false,
+                            fromOld: true,
+                            draw: this.#draw,
+                        })
+                        .then((response) => {
+                            console.log("From old!!!", response);
+                        });
+                }
+            }
+        } else {
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
+                },
+            });
+
+            axios
+                .post("http://localhost:8000/game", {
+                    saveField: "1",
+                    side: this.#side,
+                    field: this.#field.getDBboard(),
+                    mode: this.#mode,
+                    winSide: this.#winSide,
+                    gameRunning: -1,
+                    newGame: false,
+                })
+                .then((response) => {
+                    console.log("from handle submit", response);
+                });
         }
     }
 
@@ -250,21 +400,49 @@ class TicTacToe {
         return this.#mode;
     }
 
-    createField(newField = true, result = "") {
+    #toArr(s) {
+        var a = [];
+        for (let letter of s) {
+            a.push(letter !== "1" ? letter : "");
+        }
+
+        return a;
+    }
+
+    restart() {
+        console.log(`Field = ${this.#fieldDB}`);
+        this.createField(true, ``, true);
+    }
+
+    createField(newField = true, result = "", fromOld = false) {
+        var lside = this.#mode == "local" ? "" : `Сторона: ${this.#side}`;
+
         document.querySelector(".game").innerHTML =
             '<div class="row">' +
             '<div class="col">' +
-            `<p class="lead text-center">Сторона: ${this.#side}</p>` +
+            `<p class="lead text-center">Режим: ${this.#modeDescribe}</p>` +
             "</div>" +
             '<div class="col">' +
-            `<p class="lead text-center">Режим: ${this.#modeDescribe}</p>` +
+            `<p class="lead text-center">${lside}</p>` +
             "</div>" +
             "</div>" +
             '<div class="field">';
 
         if (newField == true) {
-            this.#field = new Board();
-            this.#clock = true;
+            if (this.#fieldDB == 0) {
+                if (fromOld == true) {
+                    this.#createDBField(true, false, true);
+                    this.#field = new Board();
+                    //this.#createDBField(true);
+                } else {
+                    this.#field = new Board();
+                    this.#createDBField(true);
+                }
+            } else {
+                this.#field = new Board(this.#toArr(this.#fieldDB));
+            }
+
+            this.#clock = this.#field.getTurn();
             this.#field.state.forEach((e, i) => {
                 document.querySelector(
                     ".field"
@@ -276,10 +454,7 @@ class TicTacToe {
             ).innerHTML += `<div class="container"><div class="row" id="gameBtns">`;
             document.querySelector(
                 "#gameBtns"
-            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-success" onclick="t.createField(true)">Перезапустить</button></div>`;
-            document.querySelector(
-                "#gameBtns"
-            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-danger" onclick="openMenu()">Выйти из игры</button></div>`;
+            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-danger" onclick="t.openMenu()">Выйти из игры</button></div>`;
             document.querySelector(".game").innerHTML += `</div></div>`;
         } else {
             this.#field.state.forEach((e, i) => {
@@ -289,28 +464,78 @@ class TicTacToe {
             });
             document.querySelector(".field").innerHTML += `</div>`;
             document.querySelector(".game").innerHTML += `<div>${result}</div>`;
+            if (result != "<div><h2 class='text-center'>Ничья!</h2></div>") {
+                if (this.#player1side == this.#scorePrint) {
+                    document.querySelector(
+                        ".game"
+                    ).innerHTML += `<div><h2 class="text-center">Поздравляем, вам начислено 3 очка!</h2></div>`;
+                } else {
+                    document.querySelector(
+                        ".game"
+                    ).innerHTML += `<div><h2 class="text-center">Проигрыш, вы потеряли 1 очко!</h2></div>`;
+                }
+            }
             document.querySelector(
                 ".game"
             ).innerHTML += `<div class="container"><div class="row" id="gameBtns">`;
             document.querySelector(
                 "#gameBtns"
-            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-success" onclick="t.createField()">Перезапустить</button></div>`;
+            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-success" onclick="t.restart()">Перезапустить</button></div>`;
             document.querySelector(
                 "#gameBtns"
-            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-danger" onclick="openMenu()">Выйти из игры</button></div>`;
-            document.querySelector(".game") += `</div></div>`;
+            ).innerHTML += `<div class="col text-center"><button type="button" class="btn btn-danger" onclick="t.openMenu()">Выйти из игры</button></div>`;
+            document.querySelector(".game").innerHTML += `</div></div>`;
         }
     }
 
-    #checkWin(statusObj, side, role = "Игрок") {
+    openMenu() {
+        this.#createDBField(true, true);
+        document.querySelector(
+            ".game"
+        ).innerHTML = `<p class="lead text-center">Выберите сторону</p>
+        <div class="row">
+            <div class="col text-center">
+                <input type="radio" class="btn-check" name="side" id="cross-ttt" value="X" autocomplete="off" checked>
+                <label class="btn btn-outline-dark btn-lg rounded-circle" for="cross-ttt">X</label>
+            </div>
+            <div class="col text-center">
+                <input type="radio" class="btn-check" name="side" id="circle-ttt" value="O" autocomplete="off">
+                <label class="btn btn-outline-dark btn-lg rounded-circle" for="circle-ttt">O</label>
+            </div>
+        </div>
+        <p class="lead text-center">Режим игры</p>
+        <div class="row">
+            <div class="col text-center">
+                <input type="radio" class="btn-check" name="mode" id="single" value="single" autocomplete="off" checked>
+                <label class="btn btn-outline-dark btn-lg" for="single">Одиночная игра</label>
+            </div>
+            <div class="col text-center">
+                <input type="radio" class="btn-check" name="mode" id="local" value="local" autocomplete="off">
+                <label class="btn btn-outline-dark btn-lg" for="local">Локальная игра</label>
+            </div>
+        </div>
+        <div class="text-center m-3">
+            <button type="button" class="btn btn-success btn-lg" onclick="initGame()">
+                <h1>Начать игру</h1>
+            </button>
+        </div>`;
+    }
+
+    #checkWin(statusObj, side, role = "Игрок", name = "") {
         if (!statusObj) return;
         const { winner, direction, row, column, diagonal } = statusObj;
         var result = "";
         if (winner == "draw") {
-            result = "<div><h2>Ничья!</h2></div>";
+            result = "<div><h2 class='text-center'>Ничья!</h2></div>";
+            this.#draw = true;
         } else if (winner.includes(side)) {
-            result = `<div><h2 class="text-center mb-2">${role} (${side}) победил!</h2></div>`;
+            if (role == "Игрок") {
+                this.#winSide = side;
+            }
+            this.#scorePrint = side;
+            result = `<div><h2 class="text-center mb-2">${role} ${name} (${side}) победил!</h2></div>`;
         }
+        this.#gameRunning = 0;
         this.createField(false, result);
     }
 
@@ -326,34 +551,28 @@ class TicTacToe {
             );
         }
         this.#clock = true;
+        this.#createDBField();
     }
 
     addMove(element) {
         if (this.#mode == "local") {
-            if (this.#field.isEmpty() && this.#player1side == "O") {
-                if (this.#field.insert(this.#player2side, element)) {
+            if (this.#field.getTurn()) {
+                if (this.#field.insert("X", element)) {
                     document.getElementById(
                         `block_${element}`
-                    ).firstChild.innerText = this.#player2side;
-                    this.#checkWin(this.#field.isTerminal(), this.#player2side);
-                    this.#clock = true;
-                }
-            }
-            if (this.#clock) {
-                if (this.#field.insert(this.#player1side, element)) {
-                    document.getElementById(
-                        `block_${element}`
-                    ).firstChild.innerText = this.#player1side;
-                    this.#checkWin(this.#field.isTerminal(), this.#player1side);
+                    ).firstChild.innerText = "X";
+                    this.#checkWin(this.#field.isTerminal(), "X");
                     this.#clock = false;
+                    this.#createDBField();
                 }
             } else {
-                if (this.#field.insert(this.#player2side, element)) {
+                if (this.#field.insert("O", element)) {
                     document.getElementById(
                         `block_${element}`
-                    ).firstChild.innerText = this.#player2side;
-                    this.#checkWin(this.#field.isTerminal(), this.#player2side);
-                    this.#clock = true;
+                    ).firstChild.innerText = "O";
+                    this.#checkWin(this.#field.isTerminal(), "O");
+                    this.#clock = false;
+                    this.#createDBField();
                 }
             }
         } else if (this.#mode == "single") {
@@ -364,51 +583,10 @@ class TicTacToe {
                     ).firstChild.innerText = this.#player1side;
                     this.#checkWin(this.#field.isTerminal(), this.#player1side);
                     this.#clock = false;
+                    this.#createDBField();
                     this.#addMoveComp();
                 }
             }
         }
     }
-}
-
-var t;
-
-function initGame() {
-    t = new TicTacToe();
-}
-
-function openMenu() {
-    document.querySelector(
-        ".game"
-    ).innerHTML = `<p class="lead text-center">Выберите сторону</p>
-    <div class="row">
-        <div class="col text-center">
-            <input type="radio" class="btn-check" name="side" id="cross-ttt" value="X" autocomplete="off" checked>
-            <label class="btn btn-outline-dark btn-lg rounded-circle" for="cross-ttt">X</label>
-        </div>
-        <div class="col text-center">
-            <input type="radio" class="btn-check" name="side" id="circle-ttt" value="O" autocomplete="off">
-            <label class="btn btn-outline-dark btn-lg rounded-circle" for="circle-ttt">O</label>
-        </div>
-    </div>
-    <p class="lead text-center">Режим игры</p>
-    <div class="row">
-        <div class="col text-center">
-            <input type="radio" class="btn-check" name="mode" id="single" value="single" autocomplete="off" checked>
-            <label class="btn btn-outline-dark btn-lg" for="single">Одиночная игра</label>
-        </div>
-        <div class="col text-center">
-            <input type="radio" class="btn-check" name="mode" id="local" value="local" autocomplete="off">
-            <label class="btn btn-outline-dark btn-lg" for="local">Локальная игра</label>
-        </div>
-        <div class="col text-center">
-            <input type="radio" class="btn-check" name="mode" id="multiplayer" value="multi" autocomplete="off">
-            <label class="btn btn-outline-dark btn-lg" for="multiplayer">Игра по сети</label>
-        </div>
-    </div>
-    <div class="text-center m-3">
-        <button type="button" class="btn btn-success btn-lg" onclick="initGame()">
-            <h1>Начать игру</h1>
-        </button>
-    </div>`;
 }

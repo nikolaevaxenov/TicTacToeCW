@@ -17,7 +17,6 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('login')->nullable(false);
             $table->string('password')->nullable(false);
-            $table->string('apikey')->nullable(false);
             $table->bigInteger('score')->default(0)->nullable(false);
             $table->bigInteger('wins')->default(0)->nullable(false);
             $table->bigInteger('losses')->default(0)->nullable(false);

@@ -10,28 +10,14 @@ class AccountController extends Controller
     function showAPI(Request $request)
     {
         $score = User::select('score', 'wins', 'losses')->where('login', session()->get('login'))->limit(1)->get();
-        if ($request->showapi == 0) {
-            return view('account')->with('data', [
-                'score' => $score,
-                'apikey' => null
-            ]);
-        } else {
-            $apikey = User::select('apikey')->where('login', session()->get('login'))->limit(1)->get();
-            return view('account')->with('data', [
-                'score' => $score,
-                'apikey' => $apikey
-            ]);
-        }
+        return view('account')->with('score', $score);
     }
 
     function account()
     {
         if (session()->has('login')) {
             $score = User::select('score', 'wins', 'losses')->where('login', session()->get('login'))->limit(1)->get();
-            return view('account')->with('data', [
-                'score' => $score,
-                'apikey' => null
-            ]);
+            return view('account')->with('score', $score);
         } else {
             return redirect()->route('index');
         }
